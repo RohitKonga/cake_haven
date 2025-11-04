@@ -4,6 +4,9 @@ import helmet from 'helmet';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
+import authRoutes from './routes/auth.routes.js';
+import cakeRoutes from './routes/cake.routes.js';
+import orderRoutes from './routes/order.routes.js';
 
 dotenv.config();
 
@@ -16,6 +19,10 @@ app.use(morgan('dev'));
 app.get('/health', (_, res) => {
   res.json({ ok: true, service: 'cake-haven-api' });
 });
+
+app.use('/api/auth', authRoutes);
+app.use('/api/cakes', cakeRoutes);
+app.use('/api/orders', orderRoutes);
 
 const PORT = process.env.PORT || 4000;
 const MONGO_URI = process.env.MONGO_URI || '';
