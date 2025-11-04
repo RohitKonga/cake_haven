@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../core/providers/catalog_provider.dart';
+import '../core/providers/cart_provider.dart';
+import '../core/models/cart_item.dart';
 import 'search_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
@@ -56,6 +60,8 @@ class _HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final catalog = context.watch<CatalogProvider>();
+    final items = catalog.cakes;
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -65,9 +71,21 @@ class _HomeTab extends StatelessWidget {
           height: 160,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            itemBuilder: (_, i) => _FeaturedCard(index: i),
+            itemBuilder: (_, i) => _FeaturedCard(
+              index: i,
+              title: i < items.length ? items[i].name : 'Chocolate Delight',
+              price: i < items.length ? items[i].price : 24.99,
+              onAdd: () {
+                if (i < items.length) {
+                  final cake = items[i];
+                  context.read<CartProvider>().addItem(
+                        CartItem(cakeId: cake.id, name: cake.name, price: cake.price, quantity: 1),
+                      );
+                }
+              },
+            ),
             separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemCount: 6,
+            itemCount: items.isEmpty ? 6 : items.length.clamp(0, 10),
           ),
         ),
         const SizedBox(height: 24),
@@ -86,8 +104,11 @@ class _HomeTab extends StatelessWidget {
 }
 
 class _FeaturedCard extends StatelessWidget {
-  const _FeaturedCard({required this.index});
+  const _FeaturedCard({required this.index, required this.title, required this.price, this.onAdd});
   final int index;
+  final String title;
+  final double price;
+  final VoidCallback? onAdd;
 
   @override
   Widget build(BuildContext context) {
@@ -111,8 +132,14 @@ class _FeaturedCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          const Text('Chocolate Delight', style: TextStyle(fontWeight: FontWeight.w600)),
-          const Text('\$24.99', style: TextStyle(fontSize: 12)),
+          Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('\$' + price.toStringAsFixed(2), style: const TextStyle(fontSize: 12)),
+              IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: onAdd),
+            ],
+          ),
         ],
       ),
     );

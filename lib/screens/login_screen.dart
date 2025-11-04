@@ -1,8 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../core/providers/auth_provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
   static const String routeName = '/login';
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  final _emailCtrl = TextEditingController();
+  final _passCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,14 +29,18 @@ class LoginScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
-            const TextField(decoration: InputDecoration(labelText: 'Email')),
+            TextField(controller: _emailCtrl, decoration: const InputDecoration(labelText: 'Email')),
             const SizedBox(height: 12),
-            const TextField(decoration: InputDecoration(labelText: 'Password'), obscureText: true),
+            TextField(controller: _passCtrl, decoration: const InputDecoration(labelText: 'Password'), obscureText: true),
             const SizedBox(height: 20),
             SizedBox(
               width: double.infinity,
               child: FilledButton(
-                onPressed: () {},
+                onPressed: () async {
+                  final auth = context.read<AuthProvider>();
+                  await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
+                  if (auth.error == null && mounted) Navigator.pop(context);
+                },
                 child: const Text('Login'),
               ),
             ),
@@ -28,6 +49,12 @@ class LoginScreen extends StatelessWidget {
               onPressed: () => Navigator.pushNamed(context, '/signup'),
               child: const Text('Create an account'),
             ),
+            const SizedBox(height: 12),
+            Consumer<AuthProvider>(builder: (_, auth, __) {
+              if (auth.isLoading) return const CircularProgressIndicator();
+              if (auth.error != null) return Text(auth.error!, style: const TextStyle(color: Colors.red));
+              return const SizedBox.shrink();
+            }),
           ],
         ),
       ),
