@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/providers/auth_provider.dart';
+import '../core/widgets/cake_haven_logo.dart';
 import 'home_screen.dart';
 import 'admin_dashboard_screen.dart';
 
@@ -36,10 +37,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Text(
-              'CakeHaven',
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
+            const CakeHavenLogo(size: 48, showSubtitle: true),
             const SizedBox(height: 16),
             Consumer<AuthProvider>(builder: (_, auth, __) {
               if (auth.currentUser?.role == 'admin') {

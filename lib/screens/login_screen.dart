@@ -39,7 +39,11 @@ class _LoginScreenState extends State<LoginScreen> {
           (route) => false,
         );
       } else {
-        Navigator.pop(context);
+        // Clear entire navigation stack and go to home
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          HomeScreen.routeName,
+          (route) => false,
+        );
       }
     }
   }

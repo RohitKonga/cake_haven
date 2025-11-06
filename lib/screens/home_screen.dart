@@ -7,6 +7,7 @@ import '../core/models/cart_item.dart';
 import '../core/models/cake.dart';
 import '../core/services/api_client.dart';
 import '../core/services/banner_service.dart';
+import '../core/widgets/cake_haven_logo.dart';
 import 'search_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
@@ -46,7 +47,7 @@ class _HomeScreenState extends State<HomeScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('CakeHaven 🍰'),
+        title: const CakeHavenLogo(size: 20),
         actions: [
           IconButton(
             icon: const Icon(Icons.search),

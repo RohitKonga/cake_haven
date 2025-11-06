@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/providers/auth_provider.dart';
 import 'admin_dashboard_screen.dart';
+import 'home_screen.dart';
 import 'login_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -51,7 +52,11 @@ class _SignupScreenState extends State<SignupScreen> {
           (route) => false,
         );
       } else {
-        Navigator.pop(context);
+        // Clear entire navigation stack and go to home
+        Navigator.of(context).pushNamedAndRemoveUntil(
+          HomeScreen.routeName,
+          (route) => false,
+        );
       }
     }
   }

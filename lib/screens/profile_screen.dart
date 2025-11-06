@@ -272,7 +272,11 @@ class ProfileScreen extends StatelessWidget {
                         if (confirm == true) {
                           await auth.logout();
                           if (context.mounted) {
-                            Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+                            // Clear entire navigation stack and go to home
+                            Navigator.of(context).pushNamedAndRemoveUntil(
+                              HomeScreen.routeName,
+                              (route) => false,
+                            );
                           }
                         }
                       },
