@@ -5,8 +5,19 @@ class Cake {
   final double price;
   final double discount;
   final String? imageUrl;
+  final List<String> categories;
+  final String? flavor;
 
-  Cake({required this.id, required this.name, this.description, required this.price, this.discount = 0, this.imageUrl});
+  Cake({
+    required this.id,
+    required this.name,
+    this.description,
+    required this.price,
+    this.discount = 0,
+    this.imageUrl,
+    this.categories = const [],
+    this.flavor,
+  });
 
   factory Cake.fromJson(Map<String, dynamic> json) {
     return Cake(
@@ -16,6 +27,10 @@ class Cake {
       price: (json['price'] as num).toDouble(),
       discount: (json['discount'] as num? ?? 0).toDouble(),
       imageUrl: json['imageUrl'] as String?,
+      categories: json['categories'] != null
+          ? List<String>.from(json['categories'] as List)
+          : [],
+      flavor: json['flavor'] as String?,
     );
   }
 }
