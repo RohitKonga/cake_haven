@@ -56,9 +56,19 @@ export async function uploadCakeImage(req, res) {
     if (!req.file) return res.status(400).json({ error: 'Image file required' });
 
     // Check if Cloudinary is configured
-    if (!cloudinary.config().cloud_name) {
-      return res.status(500).json({ error: 'Cloudinary not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file' });
+    const cloudName = cloudinary.config().cloud_name;
+    if (!cloudName) {
+      console.error('Cloudinary configuration check failed');
+      return res.status(500).json({ 
+        error: 'Cloudinary not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file and restart the server' 
+      });
     }
+
+    console.log('Uploading image to Cloudinary...', {
+      cloudName,
+      fileSize: req.file.size,
+      mimetype: req.file.mimetype,
+    });
 
     // Convert buffer to base64 for Cloudinary upload
     const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
@@ -70,6 +80,8 @@ export async function uploadCakeImage(req, res) {
       transformation: [{ width: 800, height: 800, crop: 'limit' }],
     });
 
+    console.log('✅ Image uploaded successfully:', uploadResult.secure_url);
+
     // Update cake with image URL
     cake.imageUrl = uploadResult.secure_url;
     cake.publicId = uploadResult.public_id;
@@ -77,7 +89,7 @@ export async function uploadCakeImage(req, res) {
 
     res.json({ imageUrl: cake.imageUrl, publicId: cake.publicId });
   } catch (error) {
-    console.error('Image upload error:', error);
+    console.error('❌ Image upload error:', error);
     res.status(500).json({ error: 'Image upload failed: ' + error.message });
   }
 }

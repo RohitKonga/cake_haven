@@ -102,21 +102,24 @@ class _AdminEditCakeScreenState extends State<AdminEditCakeScreen> {
     };
     try {
       Map<String, dynamic> cake;
+      bool imageUploadSuccess = true;
+      String? imageError;
+      
       if (widget.cake == null) {
         cake = await admin.createCake(payload);
         if (_imageBytes != null && _imageName != null) {
           try {
             final id = (cake['id'] as String?) ?? (cake['_id'] as String);
             final imageUrl = await admin.uploadCakeImage(id, _imageBytes!, _imageName!);
-            if (imageUrl != null) {
+            if (imageUrl != null && imageUrl.isNotEmpty) {
               cake['imageUrl'] = imageUrl;
+            } else {
+              imageUploadSuccess = false;
+              imageError = 'Image upload returned null';
             }
           } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Cake created but image upload failed: ${e.toString()}')),
-              );
-            }
+            imageUploadSuccess = false;
+            imageError = e.toString();
           }
         }
       } else {
@@ -125,27 +128,44 @@ class _AdminEditCakeScreenState extends State<AdminEditCakeScreen> {
         if (_imageBytes != null && _imageName != null) {
           try {
             final imageUrl = await admin.uploadCakeImage(id, _imageBytes!, _imageName!);
-            if (imageUrl != null) {
+            if (imageUrl != null && imageUrl.isNotEmpty) {
               cake['imageUrl'] = imageUrl;
+            } else {
+              imageUploadSuccess = false;
+              imageError = 'Image upload returned null';
             }
           } catch (e) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('Cake updated but image upload failed: ${e.toString()}')),
-              );
-            }
+            imageUploadSuccess = false;
+            imageError = e.toString();
           }
         }
       }
+      
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(widget.cake == null ? 'Cake created successfully' : 'Cake updated successfully')),
-      );
-      Navigator.pop(context, true);
+      
+      if (imageUploadSuccess) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(widget.cake == null ? 'Cake created successfully!' : 'Cake updated successfully!')),
+        );
+        Navigator.pop(context, true);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Cake saved but image upload failed: ${imageError ?? "Unknown error"}'),
+            backgroundColor: Colors.orange,
+            duration: const Duration(seconds: 5),
+          ),
+        );
+        // Still navigate back since cake was saved
+        Navigator.pop(context, true);
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')),
+          SnackBar(
+            content: Text('Error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
         );
       }
     } finally {
