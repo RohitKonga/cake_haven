@@ -4,6 +4,8 @@ import '../core/providers/catalog_provider.dart';
 import '../core/providers/cart_provider.dart';
 import '../core/models/cart_item.dart';
 import '../core/models/cake.dart';
+import '../core/services/api_client.dart';
+import '../core/services/banner_service.dart';
 import 'search_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
@@ -76,16 +78,33 @@ class _HomeTabState extends State<_HomeTab> {
   final PageController _bannerController = PageController();
   int _currentBannerPage = 0;
   String? _selectedCategory;
+  List<Map<String, dynamic>> _banners = [];
+  bool _bannersLoading = true;
 
   @override
   void initState() {
     super.initState();
+    _loadBanners();
     // Auto-scroll banner
     _bannerController.addListener(() {
       setState(() {
         _currentBannerPage = _bannerController.page?.round() ?? 0;
       });
     });
+  }
+
+  Future<void> _loadBanners() async {
+    try {
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final bannerService = BannerService(ApiClient(baseUrl: baseUrl, getToken: () async => null));
+      final banners = await bannerService.getBanners();
+      setState(() {
+        _banners = banners;
+        _bannersLoading = false;
+      });
+    } catch (e) {
+      setState(() => _bannersLoading = false);
+    }
   }
 
   @override
@@ -112,137 +131,247 @@ class _HomeTabState extends State<_HomeTab> {
     final cakes = catalog.cakes;
     final filteredCakes = _filteredCakes;
     
-    // Get featured cakes with images for banner (first 3-5)
-    final featuredCakes = cakes.where((c) => c.imageUrl != null && c.imageUrl!.isNotEmpty).take(5).toList();
-    
     return RefreshIndicator(
-      onRefresh: () => catalog.fetchCakes(),
+      onRefresh: () async {
+        await catalog.fetchCakes();
+        await _loadBanners();
+      },
       child: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Banner Carousel Section
-            if (featuredCakes.isNotEmpty) ...[
+            // Banner Carousel Section - Use banners from API, fallback to cakes
+            if (_banners.isNotEmpty || (!_bannersLoading && catalog.cakes.isNotEmpty)) ...[
               SizedBox(
                 height: 200,
                 child: PageView.builder(
                   controller: _bannerController,
-                  itemCount: featuredCakes.length,
+                  itemCount: _banners.isNotEmpty ? _banners.length : catalog.cakes.where((c) => c.imageUrl != null && c.imageUrl!.isNotEmpty).take(5).length,
                   itemBuilder: (context, index) {
-                    final cake = featuredCakes[index];
-                    final discount = cake.discount > 0;
-                    final finalPrice = discount ? cake.price * (1 - cake.discount / 100) : cake.price;
-                    
-                    return Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            offset: const Offset(0, 4),
-                          ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(20),
-                        child: Stack(
-                          fit: StackFit.expand,
-                          children: [
-                            // Background Image
-                            cake.imageUrl != null
-                                ? Image.network(
-                                    cake.imageUrl!,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      color: Colors.grey[300],
-                                      child: const Icon(Icons.cake, size: 64, color: Colors.grey),
-                                    ),
-                                  )
-                                : Container(
-                                    color: Colors.grey[300],
-                                    child: const Icon(Icons.cake, size: 64, color: Colors.grey),
-                                  ),
-                            // Gradient Overlay
-                            DecoratedBox(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    Colors.transparent,
-                                    Colors.black.withOpacity(0.7),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            // Content
-                            Positioned(
-                              left: 16,
-                              right: 16,
-                              bottom: 20,
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  if (discount)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                                      decoration: BoxDecoration(
-                                        color: Colors.red,
-                                        borderRadius: BorderRadius.circular(20),
-                                      ),
-                                      child: Text(
-                                        '${cake.discount.toStringAsFixed(0)}% OFF',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    cake.name,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Row(
-                                    children: [
-                                      if (discount)
-                                        Text(
-                                          '₹${cake.price.toStringAsFixed(0)}',
-                                          style: TextStyle(
-                                            color: Colors.white70,
-                                            fontSize: 14,
-                                            decoration: TextDecoration.lineThrough,
-                                          ),
-                                        ),
-                                      if (discount) const SizedBox(width: 8),
-                                      Text(
-                                        '₹${finalPrice.toStringAsFixed(0)}',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
+                    if (_banners.isNotEmpty) {
+                      // Show admin-uploaded banners
+                      final banner = _banners[index];
+                      final imageUrl = banner['imageUrl'] as String?;
+                      final title = banner['title'] as String?;
+                      final subtitle = banner['subtitle'] as String?;
+                      final offerText = banner['offerText'] as String?;
+                      
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
                             ),
                           ],
                         ),
-                      ),
-                    );
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              imageUrl != null && imageUrl.isNotEmpty
+                                  ? Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder: (_, __, ___) => Container(
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.image, size: 64, color: Colors.grey),
+                                      ),
+                                    )
+                                  : Container(
+                                      color: Colors.grey[300],
+                                      child: const Icon(Icons.image, size: 64, color: Colors.grey),
+                                    ),
+                              DecoratedBox(
+                                decoration: BoxDecoration(
+                                  gradient: LinearGradient(
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                    colors: [
+                                      Colors.transparent,
+                                      Colors.black.withOpacity(0.7),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              if (title != null || subtitle != null || offerText != null)
+                                Positioned(
+                                  left: 16,
+                                  right: 16,
+                                  bottom: 20,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (offerText != null && offerText.isNotEmpty)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            offerText,
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      if (offerText != null && offerText.isNotEmpty) const SizedBox(height: 8),
+                                      if (title != null && title.isNotEmpty)
+                                        Text(
+                                          title,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      if (subtitle != null && subtitle.isNotEmpty) ...[
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          subtitle,
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(0.9),
+                                            fontSize: 14,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    } else {
+                      // Fallback to cakes if no banners uploaded
+                      final featuredCakes = catalog.cakes.where((c) => c.imageUrl != null && c.imageUrl!.isNotEmpty).toList();
+                      if (index < featuredCakes.length) {
+                        final cake = featuredCakes[index];
+                        final discount = cake.discount > 0;
+                        final finalPrice = discount ? cake.price * (1 - cake.discount / 100) : cake.price;
+                        
+                        return Container(
+                          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.1),
+                                blurRadius: 10,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: Stack(
+                              fit: StackFit.expand,
+                              children: [
+                                cake.imageUrl != null
+                                    ? Image.network(
+                                        cake.imageUrl!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (_, __, ___) => Container(
+                                          color: Colors.grey[300],
+                                          child: const Icon(Icons.cake, size: 64, color: Colors.grey),
+                                        ),
+                                      )
+                                    : Container(
+                                        color: Colors.grey[300],
+                                        child: const Icon(Icons.cake, size: 64, color: Colors.grey),
+                                      ),
+                                DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topCenter,
+                                      end: Alignment.bottomCenter,
+                                      colors: [
+                                        Colors.transparent,
+                                        Colors.black.withOpacity(0.7),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 16,
+                                  right: 16,
+                                  bottom: 20,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      if (discount)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            '${cake.discount.toStringAsFixed(0)}% OFF',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        ),
+                                      if (discount) const SizedBox(height: 8),
+                                      Text(
+                                        cake.name,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 20,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                      const SizedBox(height: 4),
+                                      Row(
+                                        children: [
+                                          if (discount)
+                                            Text(
+                                              '₹${cake.price.toStringAsFixed(0)}',
+                                              style: TextStyle(
+                                                color: Colors.white70,
+                                                fontSize: 14,
+                                                decoration: TextDecoration.lineThrough,
+                                              ),
+                                            ),
+                                          if (discount) const SizedBox(width: 8),
+                                          Text(
+                                            '₹${finalPrice.toStringAsFixed(0)}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    }
                   },
                 ),
               ),
@@ -252,7 +381,7 @@ class _HomeTabState extends State<_HomeTab> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(
-                    featuredCakes.length,
+                    _banners.isNotEmpty ? _banners.length : catalog.cakes.where((c) => c.imageUrl != null && c.imageUrl!.isNotEmpty).take(5).length,
                     (index) => Container(
                       width: _currentBannerPage == index ? 24 : 8,
                       height: 8,

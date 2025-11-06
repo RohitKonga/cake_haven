@@ -8,6 +8,7 @@ import 'admin/admin_edit_cake_screen.dart';
 import 'admin/admin_users_screen.dart';
 import 'admin/admin_orders_screen.dart';
 import 'admin/admin_custom_requests_screen.dart';
+import 'admin/admin_banner_screen.dart';
 import 'admin_profile_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -177,6 +178,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       subtitle: 'Review custom cake requests',
                       color: Colors.purple,
                       onTap: () => Navigator.pushNamed(context, AdminCustomRequestsScreen.routeName),
+                    ),
+                    const SizedBox(height: 12),
+                    _ActionCard(
+                      icon: Icons.image_outlined,
+                      title: 'Manage Banners',
+                      subtitle: 'Upload home page banners',
+                      color: Colors.teal,
+                      onTap: () => Navigator.pushNamed(context, AdminBannerScreen.routeName),
                     ),
                   ],
                 ),
