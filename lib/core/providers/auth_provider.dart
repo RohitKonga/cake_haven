@@ -11,6 +11,22 @@ class AuthProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
+  Future<void> signup(String name, String email, String password) async {
+    isLoading = true;
+    error = null;
+    notifyListeners();
+    try {
+      final (t, u) = await _authService.signup(name, email, password);
+      token = t;
+      currentUser = u;
+    } catch (e) {
+      error = 'Signup failed: $e';
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
   Future<void> login(String email, String password) async {
     isLoading = true;
     error = null;
