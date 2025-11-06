@@ -45,26 +45,43 @@ class AuthService {
 
   Future<AppUser> updateProfile(Map<String, dynamic> updates) async {
     final res = await client.patch('/api/auth/profile', updates);
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    return AppUser.fromJson(data);
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      return AppUser.fromJson(data);
+    } else {
+      throw Exception('Failed to update profile: ${res.body}');
+    }
   }
 
   Future<List<Map<String, dynamic>>> getAddresses() async {
     final res = await client.get('/api/auth/addresses');
-    final data = jsonDecode(res.body) as Map<String, dynamic>;
-    return List<Map<String, dynamic>>.from(data['addresses'] ?? []);
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      return List<Map<String, dynamic>>.from(data['addresses'] ?? []);
+    } else {
+      throw Exception('Failed to get addresses: ${res.body}');
+    }
   }
 
   Future<void> addAddress(Map<String, dynamic> address) async {
-    await client.post('/api/auth/addresses', address);
+    final res = await client.post('/api/auth/addresses', address);
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception('Failed to add address: ${res.body}');
+    }
   }
 
   Future<void> updateAddress(String id, Map<String, dynamic> address) async {
-    await client.patch('/api/auth/addresses/$id', address);
+    final res = await client.patch('/api/auth/addresses/$id', address);
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception('Failed to update address: ${res.body}');
+    }
   }
 
   Future<void> deleteAddress(String id) async {
-    await client.delete('/api/auth/addresses/$id');
+    final res = await client.delete('/api/auth/addresses/$id');
+    if (res.statusCode < 200 || res.statusCode >= 300) {
+      throw Exception('Failed to delete address: ${res.body}');
+    }
   }
 }
 

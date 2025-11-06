@@ -39,9 +39,22 @@ class _AddressesScreenState extends State<AddressesScreen> {
       MaterialPageRoute(builder: (_) => const AddEditAddressScreen()),
     );
     if (result != null) {
-      final auth = context.read<AuthProvider>();
-      await auth.addAddress(result);
-      await _loadAddresses();
+      try {
+        final auth = context.read<AuthProvider>();
+        await auth.addAddress(result);
+        await _loadAddresses();
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Address added successfully')),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Error: ${e.toString()}')),
+          );
+        }
+      }
     }
   }
 

@@ -52,7 +52,13 @@ class CakeHavenApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider(authService)),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = AuthProvider(authService);
+            provider.setAuthedClient(authedClient);
+            return provider;
+          },
+        ),
         ChangeNotifierProvider(create: (_) => catalogProvider..fetchCakes()),
         ChangeNotifierProvider(create: (_) => cartProvider),
         ChangeNotifierProvider(create: (_) => customRequestProvider),

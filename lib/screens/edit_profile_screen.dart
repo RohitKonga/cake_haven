@@ -22,7 +22,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final auth = context.read<AuthProvider>();
     _nameCtrl.text = auth.currentUser?.name ?? '';
     _emailCtrl.text = auth.currentUser?.email ?? '';
-    _phoneCtrl.text = '';
+    _phoneCtrl.text = auth.currentUser?.phone ?? '';
   }
 
   @override
@@ -54,12 +54,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully')),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, true);
       }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: $e')),
+          SnackBar(content: Text('Error: ${e.toString()}')),
         );
       }
     } finally {
