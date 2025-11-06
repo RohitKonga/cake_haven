@@ -46,6 +46,7 @@ class CartProvider extends ChangeNotifier {
       final res = await _orderService.createOrder(address: address, items: _items);
       lastOrderId = res['id'] as String? ?? res['_id'] as String?;
       _items.clear();
+      notifyListeners();
       return true;
     } catch (e) {
       error = 'Checkout failed';
@@ -54,6 +55,11 @@ class CartProvider extends ChangeNotifier {
       isPlacing = false;
       notifyListeners();
     }
+  }
+
+  void clearCart() {
+    _items.clear();
+    notifyListeners();
   }
 }
 

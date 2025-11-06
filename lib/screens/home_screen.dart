@@ -10,6 +10,7 @@ import 'search_screen.dart';
 import 'cart_screen.dart';
 import 'profile_screen.dart';
 import 'cake_detail_screen.dart';
+import 'orders_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -40,9 +41,44 @@ class _HomeScreenState extends State<HomeScreen> {
             icon: const Icon(Icons.search),
             onPressed: () => Navigator.pushNamed(context, SearchScreen.routeName),
           ),
-          IconButton(
-            icon: const Icon(Icons.shopping_cart_outlined),
-            onPressed: () => Navigator.pushNamed(context, CartScreen.routeName),
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart_outlined),
+                onPressed: () => Navigator.pushNamed(context, CartScreen.routeName),
+              ),
+              Consumer<CartProvider>(
+                builder: (_, cart, __) {
+                  if (cart.items.isEmpty) return const SizedBox.shrink();
+                  final totalItems = cart.items.fold<int>(0, (sum, item) => sum + item.quantity);
+                  return Positioned(
+                    right: 8,
+                    top: 8,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: const BoxDecoration(
+                        color: Colors.red,
+                        shape: BoxShape.circle,
+                      ),
+                      constraints: const BoxConstraints(
+                        minWidth: 18,
+                        minHeight: 18,
+                      ),
+                      child: Center(
+                        child: Text(
+                          totalItems > 99 ? '99+' : totalItems.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
           ),
         ],
       ),
@@ -50,7 +86,7 @@ class _HomeScreenState extends State<HomeScreen> {
         index: _tabIndex,
         children: const [
           _HomeTab(),
-          OrdersPlaceholder(),
+          OrdersScreen(),
           ProfileScreen(),
         ],
       ),
@@ -710,6 +746,7 @@ class _CakeCard extends StatelessWidget {
                                     cakeId: cake.id,
                                     name: cake.name,
                                     price: finalPrice,
+                                    imageUrl: cake.imageUrl,
                                     quantity: 1,
                                   ),
                                 );

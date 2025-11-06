@@ -9,6 +9,7 @@ import 'admin/admin_users_screen.dart';
 import 'admin/admin_orders_screen.dart';
 import 'admin/admin_custom_requests_screen.dart';
 import 'admin/admin_banner_screen.dart';
+import 'admin/admin_coupon_screen.dart';
 import 'admin_profile_screen.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
@@ -186,6 +187,14 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       subtitle: 'Upload home page banners',
                       color: Colors.teal,
                       onTap: () => Navigator.pushNamed(context, AdminBannerScreen.routeName),
+                    ),
+                    const SizedBox(height: 12),
+                    _ActionCard(
+                      icon: Icons.local_offer_outlined,
+                      title: 'Manage Coupons',
+                      subtitle: 'Create and manage discount coupons',
+                      color: Colors.orange,
+                      onTap: () => Navigator.pushNamed(context, AdminCouponScreen.routeName),
                     ),
                   ],
                 ),

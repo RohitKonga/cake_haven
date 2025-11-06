@@ -135,6 +135,7 @@ class CakeDetailScreen extends StatelessWidget {
                                 cakeId: cake.id,
                                 name: cake.name,
                                 price: finalPrice,
+                                imageUrl: cake.imageUrl,
                                 quantity: 1,
                               ),
                             );
@@ -352,6 +353,7 @@ class _RecommendationsSection extends StatelessWidget {
                                             cakeId: cake.id,
                                             name: cake.name,
                                             price: finalPrice,
+                                            imageUrl: cake.imageUrl,
                                             quantity: 1,
                                           ),
                                         );
