@@ -108,6 +108,10 @@ class AuthProvider extends ChangeNotifier {
     await _serviceForProfile.addAddress(address);
   }
 
+  Future<void> updateAddress(String id, Map<String, dynamic> address) async {
+    await _serviceForProfile.updateAddress(id, address);
+  }
+
   Future<void> deleteAddress(String id) async {
     await _serviceForProfile.deleteAddress(id);
   }
