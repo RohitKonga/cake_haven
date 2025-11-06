@@ -379,9 +379,9 @@ class _CustomCakeScreenState extends State<CustomCakeScreen> {
                       ],
                     );
                   })
-                : _loadingRequests
+                : (_loadingRequests
                     ? const Center(child: CircularProgressIndicator())
-                    : _myRequests.isEmpty
+                    : (_myRequests.isEmpty
                         ? Center(
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -516,9 +516,8 @@ class _CustomCakeScreenState extends State<CustomCakeScreen> {
                                 );
                               },
                             ),
-                          ),
-                        ),
-                      ),
+                          ))),
+          ),
         ],
       ),
     );
