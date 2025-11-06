@@ -35,7 +35,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   Future<void> _loadStats() async {
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     
     try {

@@ -18,7 +18,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   Future<void> _load() async {
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     try {
       final data = await svc.listUsers();

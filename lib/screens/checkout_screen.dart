@@ -165,7 +165,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     try {
       final cart = context.read<CartProvider>();
       final tokenGetter = () async => context.read<AuthProvider>().token;
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final orderService = OrderService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       
       final total = ModalRoute.of(context)!.settings.arguments as double? ?? cart.total;

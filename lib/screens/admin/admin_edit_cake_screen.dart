@@ -90,7 +90,7 @@ class _AdminEditCakeScreenState extends State<AdminEditCakeScreen> {
 
     setState(() => _saving = true);
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     final payload = {
       'name': _name.text.trim(),

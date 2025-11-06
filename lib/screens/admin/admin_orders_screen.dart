@@ -21,7 +21,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   Future<void> _load() async {
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     final data = await svc.listOrders();
     setState(() {
@@ -32,7 +32,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
 
   Future<void> _updateStatus(String id, String status) async {
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     await svc.updateOrderStatus(id, status);
     await _load();

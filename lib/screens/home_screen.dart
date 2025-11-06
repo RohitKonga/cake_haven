@@ -142,7 +142,7 @@ class _HomeTabState extends State<_HomeTab> {
 
   Future<void> _loadBanners() async {
     try {
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final bannerService = BannerService(ApiClient(baseUrl: baseUrl, getToken: () async => null));
       final banners = await bannerService.getBanners();
       setState(() {

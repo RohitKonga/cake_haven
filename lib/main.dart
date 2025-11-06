@@ -49,7 +49,7 @@ class CakeHavenApp extends StatelessWidget {
       fontFamily: 'Roboto',
     );
 
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final authService = AuthService(ApiClient(baseUrl: baseUrl, getToken: null));
     final authedClient = ApiClient(baseUrl: baseUrl, getToken: authService.getToken);
     final catalogProvider = CatalogProvider(CakeService(ApiClient(baseUrl: baseUrl, getToken: () async => null)));

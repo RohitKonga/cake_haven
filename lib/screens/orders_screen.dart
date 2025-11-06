@@ -26,7 +26,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
   Future<void> _loadOrders() async {
     try {
       final tokenGetter = () async => context.read<AuthProvider>().token;
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final client = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
       final res = await client.get('/api/orders/me');
       final data = jsonDecode(res.body) as List<dynamic>;

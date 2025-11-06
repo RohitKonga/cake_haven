@@ -28,7 +28,7 @@ class _AdminBannerScreenState extends State<AdminBannerScreen> {
 
   Future<void> _loadBanners() async {
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     
     try {
@@ -54,7 +54,7 @@ class _AdminBannerScreenState extends State<AdminBannerScreen> {
     
     try {
       final tokenGetter = () async => context.read<AuthProvider>().token;
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       
       final uri = Uri.parse('$baseUrl/api/banners/admin');
@@ -107,7 +107,7 @@ class _AdminBannerScreenState extends State<AdminBannerScreen> {
     setState(() => _loading = true);
     try {
       final tokenGetter = () async => context.read<AuthProvider>().token;
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       await admin.client.delete('/api/banners/admin/$id');
       ScaffoldMessenger.of(context).showSnackBar(

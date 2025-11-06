@@ -24,7 +24,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
 
   Future<void> _loadCoupons() async {
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
     
     try {
@@ -87,7 +87,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
 
               try {
                 final tokenGetter = () async => context.read<AuthProvider>().token;
-                final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+                final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
                 final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
                 
                 await admin.post('/api/coupons/admin', {
@@ -120,7 +120,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
   Future<void> _toggleCouponStatus(String id, bool currentStatus) async {
     try {
       final tokenGetter = () async => context.read<AuthProvider>().token;
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
       
       await admin.patch('/api/coupons/admin/$id', {
@@ -162,7 +162,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
 
     try {
       final tokenGetter = () async => context.read<AuthProvider>().token;
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
       await admin.delete('/api/coupons/admin/$id');
       ScaffoldMessenger.of(context).showSnackBar(

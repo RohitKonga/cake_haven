@@ -19,7 +19,7 @@ class _AdminCakesListScreenState extends State<AdminCakesListScreen> {
 
   Future<void> _load() async {
     final tokenGetter = () async => context.read<AuthProvider>().token;
-    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+    final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     try {
       final data = await svc.listCakes();
@@ -50,7 +50,7 @@ class _AdminCakesListScreenState extends State<AdminCakesListScreen> {
     );
     if (confirm == true) {
       final tokenGetter = () async => context.read<AuthProvider>().token;
-      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       await svc.deleteCake(id);
       await _load();
