@@ -83,6 +83,73 @@ class _AdminCakesListScreenState extends State<AdminCakesListScreen> {
     }
   }
 
+  void _showCakeOptions(BuildContext context, Map<String, dynamic> cake, String id, String name) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) => Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.only(bottom: 20),
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Cake name
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: Text(
+                name,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            const SizedBox(height: 8),
+            const Divider(),
+            // View Cake option
+            ListTile(
+              leading: const Icon(Icons.visibility_outlined, color: Colors.blue),
+              title: const Text('View Cake'),
+              subtitle: const Text('Edit cake details'),
+              onTap: () {
+                Navigator.pop(ctx);
+                Navigator.push<bool>(
+                  context,
+                  MaterialPageRoute(builder: (_) => AdminEditCakeScreen(cake: cake)),
+                ).then((refreshed) {
+                  if (refreshed == true) _load();
+                });
+              },
+            ),
+            // Delete Cake option
+            ListTile(
+              leading: const Icon(Icons.delete_outline, color: Colors.red),
+              title: const Text('Delete Cake'),
+              subtitle: const Text('Permanently remove this cake'),
+              onTap: () {
+                Navigator.pop(ctx);
+                _deleteCake(id, name);
+              },
+            ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _deleteCake(String id, String name) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -295,6 +362,7 @@ class _AdminCakesListScreenState extends State<AdminCakesListScreen> {
                                   );
                                   if (refreshed == true) _load();
                                 },
+                                onLongPress: () => _showCakeOptions(context, c, id, name),
                                 borderRadius: BorderRadius.circular(16),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.stretch,
