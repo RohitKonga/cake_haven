@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/providers/catalog_provider.dart';
 import '../core/providers/cart_provider.dart';
+import '../core/providers/auth_provider.dart';
 import '../core/models/cart_item.dart';
 import '../core/models/cake.dart';
 import '../core/services/api_client.dart';
