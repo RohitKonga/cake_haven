@@ -75,6 +75,7 @@ class _HomeTab extends StatelessWidget {
               index: i,
               title: i < items.length ? items[i].name : 'Chocolate Delight',
               price: i < items.length ? items[i].price : 24.99,
+              imageUrl: i < items.length ? items[i].imageUrl : null,
               onAdd: () {
                 if (i < items.length) {
                   final cake = items[i];
@@ -104,10 +105,11 @@ class _HomeTab extends StatelessWidget {
 }
 
 class _FeaturedCard extends StatelessWidget {
-  const _FeaturedCard({required this.index, required this.title, required this.price, this.onAdd});
+  const _FeaturedCard({required this.index, required this.title, required this.price, this.imageUrl, this.onAdd});
   final int index;
   final String title;
   final double price;
+  final String? imageUrl;
   final VoidCallback? onAdd;
 
   @override
@@ -128,7 +130,22 @@ class _FeaturedCard extends StatelessWidget {
                 color: Theme.of(context).colorScheme.surfaceContainer,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Center(child: Icon(Icons.cake, size: 48)),
+              child: imageUrl != null && imageUrl!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: Image.network(
+                        imageUrl!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        errorBuilder: (_, __, ___) => const Center(child: Icon(Icons.cake, size: 48)),
+                        loadingBuilder: (_, child, loadingProgress) {
+                          if (loadingProgress == null) return child;
+                          return const Center(child: CircularProgressIndicator());
+                        },
+                      ),
+                    )
+                  : const Center(child: Icon(Icons.cake, size: 48)),
             ),
           ),
           const SizedBox(height: 12),

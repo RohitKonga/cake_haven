@@ -105,14 +105,36 @@ class _AdminEditCakeScreenState extends State<AdminEditCakeScreen> {
       if (widget.cake == null) {
         cake = await admin.createCake(payload);
         if (_imageBytes != null && _imageName != null) {
-          final id = (cake['id'] as String?) ?? (cake['_id'] as String);
-          await admin.uploadCakeImage(id, _imageBytes!, _imageName!);
+          try {
+            final id = (cake['id'] as String?) ?? (cake['_id'] as String);
+            final imageUrl = await admin.uploadCakeImage(id, _imageBytes!, _imageName!);
+            if (imageUrl != null) {
+              cake['imageUrl'] = imageUrl;
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Cake created but image upload failed: ${e.toString()}')),
+              );
+            }
+          }
         }
       } else {
         final id = (widget.cake!['id'] as String?) ?? (widget.cake!['_id'] as String);
         cake = await admin.updateCake(id, payload);
         if (_imageBytes != null && _imageName != null) {
-          await admin.uploadCakeImage(id, _imageBytes!, _imageName!);
+          try {
+            final imageUrl = await admin.uploadCakeImage(id, _imageBytes!, _imageName!);
+            if (imageUrl != null) {
+              cake['imageUrl'] = imageUrl;
+            }
+          } catch (e) {
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Cake updated but image upload failed: ${e.toString()}')),
+              );
+            }
+          }
         }
       }
       if (!mounted) return;

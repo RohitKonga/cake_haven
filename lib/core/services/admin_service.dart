@@ -32,18 +32,25 @@ class AdminService {
   }
 
   Future<String?> uploadCakeImage(String id, List<int> bytes, String filename) async {
-    final uri = Uri.parse(client.baseUrl + '/api/cakes/' + id + '/image');
-    final headers = await client.buildHeaders(json: false);
-    final req = http.MultipartRequest('POST', uri);
-    req.headers.addAll(headers);
-    req.files.add(http.MultipartFile.fromBytes('image', bytes, filename: filename));
-    final streamed = await req.send();
-    final res = await http.Response.fromStream(streamed);
-    if (res.statusCode >= 200 && res.statusCode < 300) {
-      final data = jsonDecode(res.body) as Map<String, dynamic>;
-      return data['imageUrl'] as String?;
+    try {
+      final uri = Uri.parse(client.baseUrl + '/api/cakes/' + id + '/image');
+      final headers = await client.buildHeaders(json: false);
+      final req = http.MultipartRequest('POST', uri);
+      req.headers.addAll(headers);
+      req.files.add(http.MultipartFile.fromBytes('image', bytes, filename: filename));
+      final streamed = await req.send();
+      final res = await http.Response.fromStream(streamed);
+      
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        final data = jsonDecode(res.body) as Map<String, dynamic>;
+        return data['imageUrl'] as String?;
+      } else {
+        final errorData = jsonDecode(res.body) as Map<String, dynamic>;
+        throw Exception(errorData['error'] as String? ?? 'Image upload failed');
+      }
+    } catch (e) {
+      throw Exception('Failed to upload image: ${e.toString()}');
     }
-    return null;
   }
 
   Future<bool> deleteCake(String id) async {

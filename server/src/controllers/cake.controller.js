@@ -50,24 +50,36 @@ export async function deleteCake(req, res) {
 }
 
 export async function uploadCakeImage(req, res) {
-  const cake = await Cake.findById(req.params.id);
-  if (!cake) return res.status(404).json({ error: 'Not found' });
-  if (!req.file) return res.status(400).json({ error: 'Image file required' });
+  try {
+    const cake = await Cake.findById(req.params.id);
+    if (!cake) return res.status(404).json({ error: 'Not found' });
+    if (!req.file) return res.status(400).json({ error: 'Image file required' });
 
-  if (!cloudinary.config().cloud_name) {
-    return res.status(500).json({ error: 'Cloudinary not configured' });
-  }
-  const result = await cloudinary.uploader.upload_stream({ folder: 'cake_haven/cakes' }, async (err, upload) => {
-    if (err) return res.status(500).json({ error: 'Upload failed' });
-    cake.imageUrl = upload.secure_url;
-    cake.publicId = upload.public_id;
+    // Check if Cloudinary is configured
+    if (!cloudinary.config().cloud_name) {
+      return res.status(500).json({ error: 'Cloudinary not configured. Please add CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET to your .env file' });
+    }
+
+    // Convert buffer to base64 for Cloudinary upload
+    const base64Image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+    
+    // Upload to Cloudinary
+    const uploadResult = await cloudinary.uploader.upload(base64Image, {
+      folder: 'cake_haven/cakes',
+      resource_type: 'image',
+      transformation: [{ width: 800, height: 800, crop: 'limit' }],
+    });
+
+    // Update cake with image URL
+    cake.imageUrl = uploadResult.secure_url;
+    cake.publicId = uploadResult.public_id;
     await cake.save();
-    return res.json({ imageUrl: cake.imageUrl });
-  });
 
-  // Pipe buffer to uploader
-  const streamifier = await import('streamifier');
-  streamifier.default.createReadStream(req.file.buffer).pipe(result);
+    res.json({ imageUrl: cake.imageUrl, publicId: cake.publicId });
+  } catch (error) {
+    console.error('Image upload error:', error);
+    res.status(500).json({ error: 'Image upload failed: ' + error.message });
+  }
 }
 
 
