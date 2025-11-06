@@ -24,7 +24,7 @@ class CartScreen extends StatelessWidget {
                   return ListTile(
                     leading: const Icon(Icons.cake_outlined),
                     title: Text(item.name),
-                    subtitle: Text('x${item.quantity}  •  \$${item.price.toStringAsFixed(2)}'),
+                    subtitle: Text('x${item.quantity}  •  ₹${item.price.toStringAsFixed(2)}'),
                     trailing: IconButton(
                       icon: const Icon(Icons.delete_outline),
                       onPressed: () => cart.removeItem(item.cakeId),
@@ -39,7 +39,7 @@ class CartScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   children: [
-                    Expanded(child: Text('Total: \$${cart.total.toStringAsFixed(2)}')),
+                    Expanded(child: Text('Total: ₹${cart.total.toStringAsFixed(2)}')),
                     FilledButton(
                       onPressed: cart.items.isEmpty ? null : () => Navigator.pushNamed(context, CheckoutScreen.routeName),
                       child: const Text('Checkout'),

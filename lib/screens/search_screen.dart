@@ -26,7 +26,7 @@ class SearchScreen extends StatelessWidget {
               itemBuilder: (_, i) => const ListTile(
                 leading: Icon(Icons.cake_outlined),
                 title: Text('Vanilla Dream'),
-                subtitle: Text('Vanilla • \$19.99'),
+                subtitle: Text('Vanilla • ₹19.99'),
               ),
               separatorBuilder: (_, __) => const SizedBox(height: 8),
               itemCount: 10,

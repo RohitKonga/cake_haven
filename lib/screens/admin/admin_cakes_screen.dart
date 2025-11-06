@@ -49,7 +49,7 @@ class _AdminCakesScreenState extends State<AdminCakesScreen> {
                 return ListTile(
                   leading: const Icon(Icons.cake_outlined),
                   title: Text(name),
-                  subtitle: Text('\$${price.toStringAsFixed(2)}'),
+                  subtitle: Text('₹${price.toStringAsFixed(2)}'),
                   onTap: () async {
                     final refreshed = await Navigator.push<bool>(context, MaterialPageRoute(builder: (_) => AdminEditCakeScreen(cake: c)));
                     if (refreshed == true) _load();

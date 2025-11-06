@@ -4,7 +4,9 @@ import '../services/auth_service.dart';
 import '../services/api_client.dart';
 
 class AuthProvider extends ChangeNotifier {
-  AuthProvider(this._authService);
+  AuthProvider(this._authService) {
+    _loadUser();
+  }
 
   final AuthService _authService;
   AuthService? _authedAuthService;
@@ -14,6 +16,26 @@ class AuthProvider extends ChangeNotifier {
   String? error;
 
   AuthService get _serviceForProfile => _authedAuthService ?? _authService;
+
+  Future<void> _loadUser() async {
+    final savedToken = await _authService.getToken();
+    if (savedToken != null) {
+      token = savedToken;
+      // Wait for authed client to be set (it's set in main.dart)
+      await Future.delayed(const Duration(milliseconds: 100));
+      try {
+        // Use authed service if available, otherwise use regular service
+        final service = _authedAuthService ?? _authService;
+        final user = await service.getMe();
+        currentUser = user;
+        notifyListeners();
+      } catch (e) {
+        // Token might be invalid, clear it
+        await _authService.clearToken();
+        token = null;
+      }
+    }
+  }
 
   Future<void> signup(String name, String email, String password) async {
     isLoading = true;

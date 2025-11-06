@@ -8,6 +8,7 @@ import authRoutes from './routes/auth.routes.js';
 import cakeRoutes from './routes/cake.routes.js';
 import orderRoutes from './routes/order.routes.js';
 import customRoutes from './routes/custom.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 dotenv.config();
 
@@ -25,6 +26,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/cakes', cakeRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/custom', customRoutes);
+app.use('/api/admin', adminRoutes);
 
 const PORT = process.env.PORT || 4000;
 const MONGO_URI = process.env.MONGO_URI || '';

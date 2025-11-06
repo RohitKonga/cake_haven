@@ -56,6 +56,11 @@ class AdminService {
     return jsonDecode(res.body) as List<dynamic>;
   }
 
+  Future<List<dynamic>> listUsers() async {
+    final res = await client.get('/api/admin/users');
+    return jsonDecode(res.body) as List<dynamic>;
+  }
+
   Future<Map<String, dynamic>> reviewCustom(String id, String status, {double? price}) async {
     final body = { 'status': status, if (price != null) 'customPrice': price };
     final res = await client.patch('/api/custom/' + id + '/review', body);

@@ -136,7 +136,7 @@ class _FeaturedCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('\$${price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
+              Text('₹${price.toStringAsFixed(2)}', style: const TextStyle(fontSize: 12)),
               IconButton(icon: const Icon(Icons.add_circle_outline), onPressed: onAdd),
             ],
           ),

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../core/providers/auth_provider.dart';
 import 'home_screen.dart';
+import 'admin_dashboard_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,19 +16,38 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 800), () {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      // Wait a bit for auth provider to load user
+      await Future.delayed(const Duration(milliseconds: 1200));
       if (!mounted) return;
-      Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+      final auth = context.read<AuthProvider>();
+      if (auth.currentUser?.role == 'admin') {
+        Navigator.of(context).pushReplacementNamed(AdminDashboardScreen.routeName);
+      } else {
+        Navigator.of(context).pushReplacementNamed(HomeScreen.routeName);
+      }
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Center(
-        child: Text(
-          'CakeHaven',
-          style: TextStyle(fontSize: 28, fontWeight: FontWeight.w600),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            const Text(
+              'CakeHaven',
+              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Consumer<AuthProvider>(builder: (_, auth, __) {
+              if (auth.currentUser?.role == 'admin') {
+                return const Text('Admin Dashboard Loading...', style: TextStyle(fontSize: 14));
+              }
+              return const SizedBox.shrink();
+            }),
+          ],
         ),
       ),
     );

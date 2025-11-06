@@ -14,7 +14,7 @@ class OrdersScreen extends StatelessWidget {
           leading: Icon(Icons.receipt_long_outlined),
           title: Text('Order #1001'),
           subtitle: Text('Pending'),
-          trailing: Text('\$49.98'),
+          trailing: Text('₹49.98'),
         ),
         separatorBuilder: (_, __) => const SizedBox(height: 12),
         itemCount: 6,

@@ -57,7 +57,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                 final total = (o['total'] as num?)?.toDouble() ?? 0;
                 return ListTile(
                   leading: const Icon(Icons.receipt_long_outlined),
-                  title: Text('#${id?.substring(0, 6) ?? ''} • \$${total.toStringAsFixed(2)}'),
+                  title: Text('#${id?.substring(0, 6) ?? ''} • ₹${total.toStringAsFixed(2)}'),
                   subtitle: Text(status),
                   trailing: PopupMenuButton<String>(
                     onSelected: (s) => _updateStatus(id!, s),

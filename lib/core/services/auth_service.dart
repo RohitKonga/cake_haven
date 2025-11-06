@@ -43,6 +43,16 @@ class AuthService {
     return (token, user);
   }
 
+  Future<AppUser> getMe() async {
+    final res = await client.get('/api/auth/me');
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      final data = jsonDecode(res.body) as Map<String, dynamic>;
+      return AppUser.fromJson(data);
+    } else {
+      throw Exception('Failed to get user: ${res.body}');
+    }
+  }
+
   Future<AppUser> updateProfile(Map<String, dynamic> updates) async {
     final res = await client.patch('/api/auth/profile', updates);
     if (res.statusCode >= 200 && res.statusCode < 300) {
