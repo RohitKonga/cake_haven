@@ -25,6 +25,8 @@ import 'screens/admin_dashboard_screen.dart';
 import 'screens/admin/admin_cakes_screen.dart';
 import 'screens/admin/admin_orders_screen.dart';
 import 'screens/admin/admin_custom_requests_screen.dart';
+import 'screens/edit_profile_screen.dart';
+import 'screens/addresses_screen.dart';
 
 void main() {
   runApp(const CakeHavenApp());
@@ -76,6 +78,8 @@ class CakeHavenApp extends StatelessWidget {
         AdminCakesScreen.routeName: (_) => const AdminCakesScreen(),
         AdminOrdersScreen.routeName: (_) => const AdminOrdersScreen(),
         AdminCustomRequestsScreen.routeName: (_) => const AdminCustomRequestsScreen(),
+        EditProfileScreen.routeName: (_) => const EditProfileScreen(),
+        AddressesScreen.routeName: (_) => const AddressesScreen(),
       },
       ),
     );

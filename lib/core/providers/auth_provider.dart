@@ -42,6 +42,36 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<void> logout() async {
+    await _authService.clearToken();
+    currentUser = null;
+    token = null;
+    notifyListeners();
+  }
+
+  Future<void> updateProfile(Map<String, dynamic> updates) async {
+    try {
+      final updated = await _authService.updateProfile(updates);
+      currentUser = updated;
+      notifyListeners();
+    } catch (e) {
+      error = 'Update failed: $e';
+      notifyListeners();
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> getAddresses() async {
+    return await _authService.getAddresses();
+  }
+
+  Future<void> addAddress(Map<String, dynamic> address) async {
+    await _authService.addAddress(address);
+  }
+
+  Future<void> deleteAddress(String id) async {
+    await _authService.deleteAddress(id);
+  }
 }
 
 
