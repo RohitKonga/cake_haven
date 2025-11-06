@@ -18,9 +18,7 @@ web/.dart_tool/
 .DS_Store
 Thumbs.db
 
-# Env
-.env
-*.env
+
 
 # Node (server)
 server/node_modules/
