@@ -11,6 +11,7 @@ import 'cart_screen.dart';
 import 'profile_screen.dart';
 import 'cake_detail_screen.dart';
 import 'orders_screen.dart';
+import 'auth_helpers.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -33,6 +34,15 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Check if user is admin and redirect
+    final auth = context.read<AuthProvider>();
+    if (auth.currentUser?.role == 'admin') {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        Navigator.of(context).pushReplacementNamed('/admin');
+      });
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+    
     return Scaffold(
       appBar: AppBar(
         title: const Text('CakeHaven 🍰'),
@@ -741,6 +751,10 @@ class _CakeCard extends StatelessWidget {
                           icon: const Icon(Icons.add_circle, color: Colors.pink),
                           iconSize: 28,
                           onPressed: () {
+                            if (!isUserLoggedIn(context)) {
+                              showLoginRequiredDialog(context);
+                              return;
+                            }
                             context.read<CartProvider>().addItem(
                                   CartItem(
                                     cakeId: cake.id,

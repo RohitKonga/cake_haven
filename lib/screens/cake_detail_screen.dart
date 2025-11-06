@@ -4,6 +4,7 @@ import '../core/models/cake.dart';
 import '../core/providers/catalog_provider.dart';
 import '../core/providers/cart_provider.dart';
 import '../core/models/cart_item.dart';
+import 'auth_helpers.dart';
 
 class CakeDetailScreen extends StatelessWidget {
   const CakeDetailScreen({super.key});
@@ -130,6 +131,10 @@ class CakeDetailScreen extends StatelessWidget {
                     width: double.infinity,
                     child: FilledButton.icon(
                       onPressed: () {
+                        if (!isUserLoggedIn(context)) {
+                          showLoginRequiredDialog(context);
+                          return;
+                        }
                         context.read<CartProvider>().addItem(
                               CartItem(
                                 cakeId: cake.id,
@@ -348,6 +353,10 @@ class _RecommendationsSection extends StatelessWidget {
                                   padding: EdgeInsets.zero,
                                   constraints: const BoxConstraints(),
                                   onPressed: () {
+                                    if (!isUserLoggedIn(context)) {
+                                      showLoginRequiredDialog(context);
+                                      return;
+                                    }
                                     context.read<CartProvider>().addItem(
                                           CartItem(
                                             cakeId: cake.id,

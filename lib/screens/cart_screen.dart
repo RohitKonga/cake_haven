@@ -35,8 +35,20 @@ class _CartScreenState extends State<CartScreen> {
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
       final client = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
       final res = await client.get('/api/coupons/validate/$code');
+      
+      // Check if response is successful
+      if (res.statusCode < 200 || res.statusCode >= 300) {
+        final errorData = jsonDecode(res.body) as Map<String, dynamic>;
+        throw Exception(errorData['error'] ?? 'Invalid coupon code');
+      }
+      
       final data = jsonDecode(res.body) as Map<String, dynamic>;
       final discount = (data['discount'] as num?)?.toDouble() ?? 0;
+      
+      // Validate discount is valid and greater than 0
+      if (discount <= 0 || discount > 100) {
+        throw Exception('Invalid discount value');
+      }
       
       setState(() {
         _appliedCoupon = code;
@@ -47,6 +59,11 @@ class _CartScreenState extends State<CartScreen> {
         SnackBar(content: Text('Coupon applied! ${discount.toStringAsFixed(0)}% discount'), backgroundColor: Colors.green),
       );
     } catch (e) {
+      // Clear any previously applied coupon on error
+      setState(() {
+        _appliedCoupon = null;
+        _couponDiscount = 0;
+      });
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Invalid coupon code'), backgroundColor: Colors.red),
       );

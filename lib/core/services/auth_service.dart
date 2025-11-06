@@ -25,8 +25,11 @@ class AuthService {
     await prefs.remove(_tokenKey);
   }
 
-  Future<(String token, AppUser user)> signup(String name, String email, String password) async {
-    final res = await client.post('/api/auth/signup', { 'name': name, 'email': email, 'password': password });
+  Future<(String token, AppUser user)> signup(String name, String email, String password, {String? phone}) async {
+    final body = {'name': name, 'email': email, 'password': password};
+    if (phone != null && phone.isNotEmpty) body['phone'] = phone;
+    
+    final res = await client.post('/api/auth/signup', body);
     final data = jsonDecode(res.body) as Map<String, dynamic>;
     final token = data['token'] as String;
     final user = AppUser.fromJson(data['user'] as Map<String, dynamic>);

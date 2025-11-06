@@ -20,6 +20,20 @@ class OrderService {
     final res = await client.post('/api/orders', body);
     return jsonDecode(res.body) as Map<String, dynamic>;
   }
+
+  Future<Map<String, dynamic>> createOrderFromCustomRequest({
+    required String customRequestId,
+    required String address,
+    String paymentMethod = 'COD',
+  }) async {
+    final body = {
+      'customRequestId': customRequestId,
+      'address': address,
+      'paymentMethod': paymentMethod,
+    };
+    final res = await client.post('/api/orders/custom', body);
+    return jsonDecode(res.body) as Map<String, dynamic>;
+  }
 }
 
 

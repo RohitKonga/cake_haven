@@ -32,6 +32,9 @@ class CustomRequestService {
     }
     return null;
   }
+
+  Future<List<Map<String, dynamic>>> getMyRequests() async {
+    final res = await client.get('/api/custom/me');
+    return List<Map<String, dynamic>>.from(jsonDecode(res.body) as List);
+  }
 }
-
-

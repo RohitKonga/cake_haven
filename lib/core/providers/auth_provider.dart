@@ -37,12 +37,12 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  Future<void> signup(String name, String email, String password) async {
+  Future<void> signup(String name, String email, String password, {String? phone}) async {
     isLoading = true;
     error = null;
     notifyListeners();
     try {
-      final (t, u) = await _authService.signup(name, email, password);
+      final (t, u) = await _authService.signup(name, email, password, phone: phone);
       token = t;
       currentUser = u;
       // Update authed service after successful signup

@@ -117,6 +117,30 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
     );
   }
 
+  Future<void> _toggleCouponStatus(String id, bool currentStatus) async {
+    try {
+      final tokenGetter = () async => context.read<AuthProvider>().token;
+      final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4000');
+      final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
+      
+      await admin.patch('/api/coupons/admin/$id', {
+        'isActive': !currentStatus,
+      });
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Coupon ${!currentStatus ? 'activated' : 'deactivated'} successfully'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      _loadCoupons();
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}'), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   Future<void> _deleteCoupon(String id) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -203,6 +227,19 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                             trailing: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
+                                // Toggle Switch
+                                Switch(
+                                  value: isActive,
+                                  onChanged: (value) {
+                                    final id = coupon['id'] ?? coupon['_id'];
+                                    if (id != null) {
+                                      _toggleCouponStatus(id.toString(), isActive);
+                                    }
+                                  },
+                                  activeColor: Colors.green,
+                                ),
+                                const SizedBox(width: 8),
+                                // Status Badge
                                 Container(
                                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                   decoration: BoxDecoration(
@@ -218,6 +255,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                                     ),
                                   ),
                                 ),
+                                const SizedBox(width: 8),
                                 IconButton(
                                   icon: const Icon(Icons.delete_outline, color: Colors.red),
                                   onPressed: () {

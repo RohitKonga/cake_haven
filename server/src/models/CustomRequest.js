@@ -10,12 +10,10 @@ const customRequestSchema = new mongoose.Schema(
     message: { type: String },
     imageUrl: { type: String },
     publicId: { type: String },
-    status: { type: String, enum: ['Requested', 'Approved', 'Rejected'], default: 'Requested', index: true },
+    status: { type: String, enum: ['Requested', 'Approved', 'Rejected', 'Ordered'], default: 'Requested', index: true },
     customPrice: { type: Number },
   },
   { timestamps: true }
 );
 
 export const CustomRequest = mongoose.models.CustomRequest || mongoose.model('CustomRequest', customRequestSchema);
-
-
