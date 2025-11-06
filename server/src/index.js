@@ -15,9 +15,21 @@ import couponRoutes from './routes/coupon.routes.js';
 dotenv.config();
 
 const app = express();
-app.use(helmet());
-app.use(cors());
-app.use(express.json({ limit: '1mb' }));
+
+// CORS configuration - allow all origins for now
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PATCH', 'DELETE', 'PUT', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: false
+}));
+
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(morgan('dev'));
 
 app.get('/health', (_, res) => {
@@ -39,13 +51,16 @@ async function start() {
   try {
     if (MONGO_URI) {
       await mongoose.connect(MONGO_URI);
-      // Connected to Mongo
+      console.log('✅ Connected to MongoDB');
+    } else {
+      console.warn('⚠️  MONGO_URI not set, database features will not work');
     }
     app.listen(PORT, () => {
-      console.log(`API running on port ${PORT}`);
+      console.log(`🚀 API running on port ${PORT}`);
+      console.log(`📍 Health check: http://localhost:${PORT}/health`);
     });
   } catch (err) {
-    console.error('Failed to start server:', err);
+    console.error('❌ Failed to start server:', err);
     process.exit(1);
   }
 }

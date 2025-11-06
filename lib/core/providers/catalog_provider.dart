@@ -16,8 +16,15 @@ class CatalogProvider extends ChangeNotifier {
     notifyListeners();
     try {
       cakes = await _cakeService.listCakes();
+      if (kDebugMode) {
+        print('✅ Loaded ${cakes.length} cakes');
+      }
     } catch (e) {
-      error = 'Failed to load cakes';
+      error = 'Failed to load cakes: ${e.toString()}';
+      if (kDebugMode) {
+        print('❌ Error loading cakes: $e');
+      }
+      cakes = []; // Clear cakes on error
     } finally {
       isLoading = false;
       notifyListeners();
