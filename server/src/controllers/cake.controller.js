@@ -1,23 +1,37 @@
 import { validationResult } from 'express-validator';
+import mongoose from 'mongoose';
 import { Cake } from '../models/Cake.js';
 import { cloudinary } from '../utils/cloudinary.js';
 
 export async function listCakes(req, res) {
-  const { q, category, flavor, type, minPrice, maxPrice, sort } = req.query;
-  const filter = { isActive: true };
-  if (q) filter.name = { $regex: q, $options: 'i' };
-  if (category) filter.categories = category;
-  if (flavor) filter.flavor = flavor;
-  if (type) filter.type = type;
-  if (minPrice || maxPrice) {
-    filter.price = {};
-    if (minPrice) filter.price.$gte = Number(minPrice);
-    if (maxPrice) filter.price.$lte = Number(maxPrice);
+  try {
+    // Check if MongoDB is connected
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({ 
+        error: 'Database not connected',
+        message: 'Please check MongoDB connection'
+      });
+    }
+
+    const { q, category, flavor, type, minPrice, maxPrice, sort } = req.query;
+    const filter = { isActive: true };
+    if (q) filter.name = { $regex: q, $options: 'i' };
+    if (category) filter.categories = category;
+    if (flavor) filter.flavor = flavor;
+    if (type) filter.type = type;
+    if (minPrice || maxPrice) {
+      filter.price = {};
+      if (minPrice) filter.price.$gte = Number(minPrice);
+      if (maxPrice) filter.price.$lte = Number(maxPrice);
+    }
+    const sortMap = { newest: '-createdAt', popularity: '-popularity', discount: '-discount' };
+    const sortBy = sortMap[sort] || 'name';
+    const items = await Cake.find(filter).sort(sortBy).limit(100);
+    res.json(items);
+  } catch (error) {
+    console.error('❌ Error in listCakes:', error);
+    res.status(500).json({ error: 'Failed to fetch cakes', message: error.message });
   }
-  const sortMap = { newest: '-createdAt', popularity: '-popularity', discount: '-discount' };
-  const sortBy = sortMap[sort] || 'name';
-  const items = await Cake.find(filter).sort(sortBy).limit(100);
-  res.json(items);
 }
 
 export async function getCake(req, res) {
