@@ -1,4 +1,3 @@
-import 'dart:typed_data';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -27,7 +26,7 @@ class _AdminBannerScreenState extends State<AdminBannerScreen> {
   }
 
   Future<void> _loadBanners() async {
-    final tokenGetter = () async => context.read<AuthProvider>().token;
+    tokenGetter() async => context.read<AuthProvider>().token;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     
@@ -53,7 +52,7 @@ class _AdminBannerScreenState extends State<AdminBannerScreen> {
     setState(() => _loading = true);
     
     try {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       
@@ -95,8 +94,8 @@ class _AdminBannerScreenState extends State<AdminBannerScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -106,7 +105,7 @@ class _AdminBannerScreenState extends State<AdminBannerScreen> {
 
     setState(() => _loading = true);
     try {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       await admin.client.delete('/api/banners/admin/$id');

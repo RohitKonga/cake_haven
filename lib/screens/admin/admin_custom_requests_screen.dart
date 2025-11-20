@@ -19,7 +19,7 @@ class _AdminCustomRequestsScreenState extends State<AdminCustomRequestsScreen> {
   String? _filterStatus;
 
   Future<void> _load() async {
-    final tokenGetter = () async => context.read<AuthProvider>().token;
+    tokenGetter() async => context.read<AuthProvider>().token;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     final data = await svc.listCustomRequests();
@@ -30,7 +30,7 @@ class _AdminCustomRequestsScreenState extends State<AdminCustomRequestsScreen> {
   }
 
   Future<void> _review(String id, String status, {double? price}) async {
-    final tokenGetter = () async => context.read<AuthProvider>().token;
+    tokenGetter() async => context.read<AuthProvider>().token;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     await svc.reviewCustom(id, status, price: price);
@@ -318,8 +318,8 @@ class _AdminCustomRequestsScreenState extends State<AdminCustomRequestsScreen> {
                                                         ),
                                                         FilledButton(
                                                           onPressed: () => Navigator.pop(ctx, true),
-                                                          child: const Text('Reject'),
                                                           style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                                                          child: const Text('Reject'),
                                                         ),
                                                       ],
                                                     ),

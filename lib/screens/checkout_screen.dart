@@ -2,10 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../core/providers/cart_provider.dart';
 import '../core/providers/auth_provider.dart';
-import '../core/models/cart_item.dart';
 import '../core/services/order_service.dart';
 import '../core/services/api_client.dart';
-import 'dart:convert';
+import '../core/services/razorpay_service.dart';
 import 'order_confirmation_screen.dart';
 import 'addresses_screen.dart';
 
@@ -23,6 +22,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   bool _loading = true;
   bool _showingAddressForm = false;
   bool _isPlacingOrder = false;
+  String _selectedPaymentMethod = 'COD'; // 'COD' or 'ONLINE'
+  late RazorpayService _razorpayService;
   
   // Address form fields
   final _labelCtrl = TextEditingController();
@@ -36,6 +37,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
   @override
   void initState() {
     super.initState();
+    _razorpayService = RazorpayService();
     _loadAddresses();
   }
 
@@ -48,6 +50,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     _stateCtrl.dispose();
     _postalCodeCtrl.dispose();
     _countryCtrl.dispose();
+    _razorpayService.dispose();
     super.dispose();
   }
 
@@ -160,20 +163,98 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       _selectedAddress!['country'],
     ].where((e) => e != null && e.toString().isNotEmpty).join(', ');
 
+    // If payment method is ONLINE, process Razorpay payment first
+    if (_selectedPaymentMethod == 'ONLINE') {
+      await _processOnlinePayment(addressText);
+    } else {
+      await _createOrder(addressText, 'COD');
+    }
+  }
+
+  Future<void> _processOnlinePayment(String addressText) async {
+    final cart = context.read<CartProvider>();
+    final auth = context.read<AuthProvider>();
+    final total = ModalRoute.of(context)!.settings.arguments as double? ?? cart.total;
+
+    // Get user details for Razorpay
+    final user = auth.currentUser;
+    if (user == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('User not found. Please login again.'), backgroundColor: Colors.red),
+      );
+      return;
+    }
+
+    // Check if phone number is available
+    if (user.phone == null || user.phone!.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Phone number is required for online payment. Please update your profile.'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 4),
+        ),
+      );
+      return;
+    }
+
     setState(() => _isPlacingOrder = true);
 
     try {
+      // Open Razorpay checkout
+      final paymentResult = await _razorpayService.openCheckout(
+        amount: total,
+        name: user.name,
+        email: user.email,
+        contact: user.phone!,
+      );
+
+      if (paymentResult == null) {
+        // User cancelled payment
+        if (mounted) {
+          setState(() => _isPlacingOrder = false);
+        }
+        return;
+      }
+
+      if (paymentResult['success'] == true) {
+        // Payment successful, create order
+        await _createOrder(addressText, 'ONLINE', paymentId: paymentResult['payment_id'] as String?);
+      } else {
+        // Payment failed
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Payment failed: ${paymentResult['error'] ?? 'Unknown error'}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          setState(() => _isPlacingOrder = false);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Payment error: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        setState(() => _isPlacingOrder = false);
+      }
+    }
+  }
+
+  Future<void> _createOrder(String addressText, String paymentMethod, {String? paymentId}) async {
+    try {
       final cart = context.read<CartProvider>();
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final orderService = OrderService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
-      
-      final total = ModalRoute.of(context)!.settings.arguments as double? ?? cart.total;
       
       final order = await orderService.createOrder(
         address: addressText,
         items: cart.items,
-        paymentMethod: 'COD',
+        paymentMethod: paymentMethod,
       );
 
       // Clear cart
@@ -362,7 +443,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                           ],
                         ),
                       ),
-                    )).toList(),
+                    )),
                   ],
                   
                   const SizedBox(height: 24),
@@ -370,12 +451,41 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   // Payment Method
                   const Text('Payment Method', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 12),
-                  const Card(
-                    child: ListTile(
-                      leading: Icon(Icons.money),
-                      title: Text('Cash on Delivery'),
-                      subtitle: Text('Pay when you receive your order'),
-                      trailing: Icon(Icons.check_circle, color: Colors.green),
+                  Card(
+                    child: RadioListTile<String>(
+                      value: 'COD',
+                      groupValue: _selectedPaymentMethod,
+                      onChanged: (value) => setState(() => _selectedPaymentMethod = value!),
+                      title: Row(
+                        children: [
+                          const Icon(Icons.money, size: 20),
+                          const SizedBox(width: 8),
+                          const Expanded(child: Text('Cash on Delivery')),
+                        ],
+                      ),
+                      subtitle: const Text('Pay when you receive your order'),
+                      secondary: _selectedPaymentMethod == 'COD'
+                          ? const Icon(Icons.check_circle, color: Colors.green)
+                          : null,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Card(
+                    child: RadioListTile<String>(
+                      value: 'ONLINE',
+                      groupValue: _selectedPaymentMethod,
+                      onChanged: (value) => setState(() => _selectedPaymentMethod = value!),
+                      title: Row(
+                        children: [
+                          const Icon(Icons.payment, size: 20),
+                          const SizedBox(width: 8),
+                          const Expanded(child: Text('Online Payment')),
+                        ],
+                      ),
+                      subtitle: const Text('Pay securely with Razorpay'),
+                      secondary: _selectedPaymentMethod == 'ONLINE'
+                          ? const Icon(Icons.check_circle, color: Colors.green)
+                          : null,
                     ),
                   ),
                   
@@ -400,7 +510,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                                 Text('₹${item.lineTotal.toStringAsFixed(2)}'),
                               ],
                             ),
-                          )).toList(),
+                          )),
                           const Divider(),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,

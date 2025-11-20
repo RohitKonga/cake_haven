@@ -54,7 +54,7 @@ class _CustomCakeScreenState extends State<CustomCakeScreen> {
     
     setState(() => _loadingRequests = true);
     try {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final service = CustomRequestService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       final requests = await service.getMyRequests();
@@ -134,7 +134,7 @@ class _CustomCakeScreenState extends State<CustomCakeScreen> {
     ].where((e) => e != null && e.toString().isNotEmpty).join(', ');
 
     try {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final orderService = OrderService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       

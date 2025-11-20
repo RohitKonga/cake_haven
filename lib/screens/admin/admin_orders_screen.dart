@@ -20,7 +20,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   String? _filterStatus;
 
   Future<void> _load() async {
-    final tokenGetter = () async => context.read<AuthProvider>().token;
+    tokenGetter() async => context.read<AuthProvider>().token;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     final data = await svc.listOrders();
@@ -31,7 +31,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
   }
 
   Future<void> _updateStatus(String id, String status) async {
-    final tokenGetter = () async => context.read<AuthProvider>().token;
+    tokenGetter() async => context.read<AuthProvider>().token;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     await svc.updateOrderStatus(id, status);
@@ -208,7 +208,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                                       ),
                                     ),
                                     Text(
-                                      '$paymentMethod',
+                                      paymentMethod,
                                       style: TextStyle(color: Colors.grey[600], fontSize: 11),
                                     ),
                                   ],
@@ -239,7 +239,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                                               ),
                                             ],
                                           ),
-                                        )).toList(),
+                                        )),
                                         const Divider(height: 24),
                                         // Address
                                         const Text('Delivery Address:', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
@@ -251,7 +251,7 @@ class _AdminOrdersScreenState extends State<AdminOrdersScreen> {
                                           SizedBox(
                                             width: double.infinity,
                                             child: DropdownButtonFormField<String>(
-                                              value: status,
+                                              initialValue: status,
                                               decoration: const InputDecoration(
                                                 labelText: 'Update Status',
                                                 border: OutlineInputBorder(),

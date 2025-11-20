@@ -89,7 +89,7 @@ class ProfileScreen extends StatelessWidget {
                 if (isLoggedIn && auth.currentUser?.email != null) ...[
                   const SizedBox(height: 8),
                   Text(
-                    auth.currentUser!.email!,
+                    auth.currentUser!.email,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: theme.colorScheme.onPrimaryContainer.withOpacity(0.7),
                     ),
@@ -263,8 +263,8 @@ class ProfileScreen extends StatelessWidget {
                               ),
                               FilledButton(
                                 onPressed: () => Navigator.pop(ctx, true),
-                                child: const Text('Logout'),
                                 style: FilledButton.styleFrom(backgroundColor: Colors.red),
+                                child: const Text('Logout'),
                               ),
                             ],
                           ),

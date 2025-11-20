@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import '../core/providers/cart_provider.dart';
-import '../core/models/cart_item.dart';
 import '../core/services/api_client.dart';
 import '../core/providers/auth_provider.dart';
 import 'checkout_screen.dart';
@@ -31,7 +30,7 @@ class _CartScreenState extends State<CartScreen> {
     if (code.isEmpty) return;
 
     try {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final client = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
       final res = await client.get('/api/coupons/validate/$code');
@@ -217,7 +216,7 @@ class _CartScreenState extends State<CartScreen> {
                         ],
                       ),
                     ),
-                  )).toList(),
+                  )),
                   
                   const SizedBox(height: 16),
                   

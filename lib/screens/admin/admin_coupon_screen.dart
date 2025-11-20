@@ -23,7 +23,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
   }
 
   Future<void> _loadCoupons() async {
-    final tokenGetter = () async => context.read<AuthProvider>().token;
+    tokenGetter() async => context.read<AuthProvider>().token;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
     
@@ -86,7 +86,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
               }
 
               try {
-                final tokenGetter = () async => context.read<AuthProvider>().token;
+                tokenGetter() async => context.read<AuthProvider>().token;
                 final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
                 final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
                 
@@ -119,7 +119,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
 
   Future<void> _toggleCouponStatus(String id, bool currentStatus) async {
     try {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
       
@@ -151,8 +151,8 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
           TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete'),
             style: FilledButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
           ),
         ],
       ),
@@ -161,7 +161,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
     if (confirm != true) return;
 
     try {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final admin = ApiClient(baseUrl: baseUrl, getToken: tokenGetter);
       await admin.delete('/api/coupons/admin/$id');
@@ -236,7 +236,7 @@ class _AdminCouponScreenState extends State<AdminCouponScreen> {
                                       _toggleCouponStatus(id.toString(), isActive);
                                     }
                                   },
-                                  activeColor: Colors.green,
+                                  activeThumbColor: Colors.green,
                                 ),
                                 const SizedBox(width: 8),
                                 // Status Badge

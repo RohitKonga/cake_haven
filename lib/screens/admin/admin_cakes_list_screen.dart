@@ -62,7 +62,7 @@ class _AdminCakesListScreenState extends State<AdminCakesListScreen> {
 
   Future<void> _load() async {
     setState(() => _loading = true);
-    final tokenGetter = () async => context.read<AuthProvider>().token;
+    tokenGetter() async => context.read<AuthProvider>().token;
     final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
     final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
     try {
@@ -177,7 +177,7 @@ class _AdminCakesListScreenState extends State<AdminCakesListScreen> {
       ),
     );
     if (confirm == true) {
-      final tokenGetter = () async => context.read<AuthProvider>().token;
+      tokenGetter() async => context.read<AuthProvider>().token;
       final baseUrl = const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://cake-haven.onrender.com');
       final svc = AdminService(ApiClient(baseUrl: baseUrl, getToken: tokenGetter));
       try {

@@ -26,7 +26,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _tabIndex = 0;
   final PageController _bannerController = PageController();
-  int _currentBannerPage = 0;
+  final int _currentBannerPage = 0;
 
   @override
   void dispose() {

@@ -15,7 +15,7 @@ const orderSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     items: { type: [cartItemSchema], required: true },
     address: { type: String, required: true },
-    paymentMethod: { type: String, enum: ['COD', 'MOCK'], default: 'COD' },
+    paymentMethod: { type: String, enum: ['COD', 'ONLINE', 'MOCK'], default: 'COD' },
     total: { type: Number, required: true },
     status: { type: String, enum: ['Pending', 'Preparing', 'Out for Delivery', 'Delivered'], default: 'Pending', index: true },
   },

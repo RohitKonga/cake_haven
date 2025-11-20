@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../core/models/cake.dart';
 import '../core/services/api_client.dart';
 import '../core/services/cake_service.dart';
 import '../core/widgets/cake_haven_logo.dart';
 import 'cake_detail_screen.dart';
-import 'auth_helpers.dart';
 
 class SearchScreen extends StatefulWidget {
   const SearchScreen({super.key});
